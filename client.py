@@ -20,3 +20,41 @@ def recv_json(sock, buffer):
         buffer += chunk
     line, rest = buffer.split('\n', 1)
     return json.loads(line), rest
+
+
+class TicketBookingClient:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Hệ thống đặt Vé Xe (Client1)")
+        self.root.geometry("900x650")
+        self.root.configure(bg="#f6f8fa")
+        self.buffer = ''
+        self.client_id = None
+
+        self.connect_to_server()
+        self.get_client_id()
+        self.selected_trip = None
+        self.seat_rects = {}
+
+        self.setup_ui()
+        self.view_trips()
+
+    # ket noi sever
+    def connect_to_server(self):
+        try:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect((SERVER_HOST, SERVER_PORT))
+        except Exception as e:
+            messagebox.showerror("Lỗi kết nối", f"Không thể kết nối server: {e}")
+            self.root.quit()
+
+    def get_client_id(self):
+        send_json(self.sock, {"command": "get_client_id"})
+        resp, self.buffer = recv_json(self.sock, self.buffer)
+        if resp and resp.get("status") == "success":
+            self.client_id = resp["client_id"]
+
+    def refresh_all(self):
+        self.view_trips()
+        if self.selected_trip:
+            self.display_seats()
