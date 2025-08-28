@@ -68,6 +68,18 @@ def handle_client(client_sock, addr):
                     for t, info in trips.items()
                 }
                 send_json(client_sock, {"status": "success", "trips": available})
+            elif cmd == "get_seats":
+                trip_id = req.get("trip_id")
+                only_mine = req.get("only_mine", False)
+                if trip_id in trips:
+                    if only_mine:
+                        booked = {int(s): info for s, info in trips[trip_id]['booked_seats'].items()
+                                  if info['owner_id'] == client_id}
+                    else:
+                        booked = {int(s): info for s, info in trips[trip_id]['booked_seats'].items()}
+                    send_json(client_sock, {"status": "success", "booked_seats": booked})
+                else:
+                    send_json(client_sock, {"status": "error", "message": "Chuyến không tồn tại"})
                 
     except Exception as e:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
