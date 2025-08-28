@@ -47,7 +47,7 @@ def handle_client(client_sock, addr):
     print(f"[{timestamp}] [+] Client {client_id} ({addr}) kết nối") 
 
     try:
-#Dieu kien dung
+        #Dieu kien dung
         while True:
             req, buffer = recv_json(client_sock, buffer)
             if req is None:
