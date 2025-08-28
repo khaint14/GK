@@ -14,3 +14,8 @@ trips = {
     'DAK LAK -> HCM': {'total_seats': 20, 'booked_seats': {}},
     'HCM -> DAK LAK': {'total_seats': 20, 'booked_seats': {}},
 }
+# =====================
+# Validate
+# =====================
+def is_valid_phone(phone):
+    return bool(re.match(r'^\d{10}$', phone))
