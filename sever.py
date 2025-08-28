@@ -19,3 +19,5 @@ trips = {
 # =====================
 def is_valid_phone(phone):
     return bool(re.match(r'^\d{10}$', phone))
+def is_valid_name(name):
+    return bool(re.match(r'^[A-Za-z\s]{2,}$', name))
