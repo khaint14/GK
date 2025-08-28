@@ -39,3 +39,14 @@ def is_valid_name(name):
     return bool(re.match(r'^[A-Za-z\s]{2,}$', name))
 def generate_ticket_id():
     return str(uuid.uuid4())[:8]
+
+
+#chay sever
+def start_server(host='localhost', port=5555):
+    server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server_sock.bind((host, port))
+    server_sock.listen(5)
+    print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Server chạy tại {host}:{port}")
+
+    
