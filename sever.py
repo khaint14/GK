@@ -49,4 +49,4 @@ def start_server(host='localhost', port=5555):
     server_sock.listen(5)
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Server chạy tại {host}:{port}")
 
-    
+    # kiem tra ngoai le - Kim Ngan
