@@ -80,7 +80,39 @@ def handle_client(client_sock, addr):
                     send_json(client_sock, {"status": "success", "booked_seats": booked})
                 else:
                     send_json(client_sock, {"status": "error", "message": "Chuyến không tồn tại"})
-                
+
+            elif cmd == "book_seat":
+                trip_id = req.get("trip_id")
+                seat_num = req.get("seat_num")
+                user_info = req.get("user_info", {})
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                print(f"[{timestamp}] Client {client_id} ({addr}) đặt ghế {seat_num} trên chuyến {trip_id}")
+
+                if trip_id not in trips:
+                    send_json(client_sock, {"status": "error", "message": "Chuyến không tồn tại"})
+                    print(f"[{timestamp}] Client {client_id} ({addr}) lỗi: Chuyến {trip_id} không tồn tại")
+                elif not is_valid_name(user_info.get("name", "")):
+                    send_json(client_sock, {"status": "error", "message": "Tên không hợp lệ"})
+                    print(f"[{timestamp}] Client {client_id} ({addr}) lỗi: Tên không hợp lệ")
+                elif not is_valid_phone(user_info.get("phone", "")):
+                    send_json(client_sock, {"status": "error", "message": "SĐT không hợp lệ"})
+                    print(f"[{timestamp}] Client {client_id} ({addr}) lỗi: SĐT không hợp lệ")
+                elif seat_num < 1 or seat_num > trips[trip_id]['total_seats']:
+                    send_json(client_sock, {"status": "error", "message": "Số ghế không hợp lệ"})
+                    print(f"[{timestamp}] Client {client_id} ({addr}) lỗi: Ghế {seat_num} không hợp lệ")
+                elif str(seat_num) in trips[trip_id]['booked_seats']:
+                    send_json(client_sock, {"status": "error", "message": "Ghế đã được đặt"})
+                    print(f"[{timestamp}] Client {client_id} ({addr}) lỗi: Ghế {seat_num} trên chuyến {trip_id} đã được đặt")
+                else:
+                    tid = generate_ticket_id()
+                    trips[trip_id]['booked_seats'][str(seat_num)] = {
+                        "user_info": user_info,
+                        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                        "ticket_id": tid,
+                        "owner_id": client_id
+                    }
+                    send_json(client_sock, {"status": "success", "message": f"Đặt vé thành công! Mã vé: {tid}"})
+                    print(f"[{timestamp}] Client {client_id} ({addr}) đặt ghế {seat_num} trên chuyến {trip_id} thành công, mã vé: {tid}")
     except Exception as e:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [!] Lỗi với client {client_id} ({addr}): {e}")
