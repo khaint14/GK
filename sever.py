@@ -40,6 +40,28 @@ def is_valid_name(name):
 def generate_ticket_id():
     return str(uuid.uuid4())[:8]
 
+def handle_client(client_sock, addr):
+    buffer = ""
+    client_id = str(uuid.uuid4())  # ID duy nhất cho client
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(f"[{timestamp}] [+] Client {client_id} ({addr}) kết nối") 
+
+    try:
+#Dieu kien dung
+        while True:
+            req, buffer = recv_json(client_sock, buffer)
+            if req is None:
+                if buffer == "":
+                    break
+                else:
+                    continue
+    except Exception as e:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"[{timestamp}] [!] Lỗi với client {client_id} ({addr}): {e}")
+    finally:
+        client_sock.close()
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"[{timestamp}] [-] Client {client_id} ({addr}) ngắt kết nối")
 
 #chay sever
 def start_server(host='localhost', port=5555):
@@ -48,6 +70,7 @@ def start_server(host='localhost', port=5555):
     server_sock.bind((host, port))
     server_sock.listen(5)
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Server chạy tại {host}:{port}")
+
 
     # kiem tra ngoai le - Kim Ngan
     try:
