@@ -103,3 +103,31 @@ def setup_ui(self):
     status.pack(fill='x', pady=6)
     ttk.Label(status, text="■ Ghế trống", foreground='green').pack(side='left', padx=6)
     ttk.Label(status, text="■ Ghế đã đặt", foreground='red').pack(side='left', padx=6)
+    
+    def send_request(self, request):
+        try:
+            send_json(self.sock, request)
+            obj, self.buffer = recv_json(self.sock, self.buffer)
+            return obj
+        except Exception as e:
+            messagebox.showerror("Lỗi", f"Lỗi khi giao tiếp server: {e}")
+            return {'status':'error','message':str(e)}
+
+    def view_trips(self):
+        resp = self.send_request({'command':'view_trips'})
+        if resp.get('status') == 'success':
+            server_trips = resp.get('trips', {})
+            for it in self.trip_tree.get_children():
+                self.trip_tree.delete(it)
+            for trip_id, free in server_trips.items():
+                self.trip_tree.insert('', 'end', values=(trip_id, free))
+        else:
+            messagebox.showerror("Lỗi", resp.get('message','Không xác định'))
+
+    def on_trip_select(self, event):
+        sel = self.trip_tree.selection()
+        if not sel:
+            return
+        self.selected_trip = self.trip_tree.item(sel[0])['values'][0]
+        self.seat_label.config(text=f"Sơ đồ ghế cho chuyến: {self.selected_trip}")
+        self.display_seats()
