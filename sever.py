@@ -112,7 +112,14 @@ def handle_client(client_sock, addr):
                         "owner_id": client_id
                     }
                     send_json(client_sock, {"status": "success", "message": f"Đặt vé thành công! Mã vé: {tid}"})
-                    print(f"[{timestamp}] Client {client_id} ({addr}) đặt ghế {seat_num} trên chuyến {trip_id} thành công, mã vé: {tid}")
+                    print(f"[{timestamp}] Client {client_id} ({addr}) đặt ghế {seat_num} trên chuyến {trip_id} thành công, mã vé: {tid}") 
+            elif cmd == "get_booking_info":
+                trip_id = req.get("trip_id")
+                seat_num = req.get("seat_num")
+                if trip_id in trips and str(seat_num) in trips[trip_id]['booked_seats']:
+                    send_json(client_sock, {"status": "success", "info": trips[trip_id]['booked_seats'][str(seat_num)]})
+                else:
+                    send_json(client_sock, {"status": "error", "message": "Không tìm thấy thông tin vé"})                
     except Exception as e:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [!] Lỗi với client {client_id} ({addr}): {e}")
