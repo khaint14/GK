@@ -50,3 +50,16 @@ def start_server(host='localhost', port=5555):
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Server chạy tại {host}:{port}")
 
     # kiem tra ngoai le - Kim Ngan
+    try:
+        while True:
+            client_sock, addr = server_sock.accept()
+            # Start a new thread to handle the client
+            client_thread = threading.Thread(target=handle_client, args=(client_sock, addr))
+            client_thread.start()
+    except KeyboardInterrupt:
+        print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Tắt server.")
+    finally:
+        server_sock.close()
+
+if __name__ == "__main__":
+    start_server()
