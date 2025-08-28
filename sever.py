@@ -113,13 +113,43 @@ def handle_client(client_sock, addr):
                     }
                     send_json(client_sock, {"status": "success", "message": f"Đặt vé thành công! Mã vé: {tid}"})
                     print(f"[{timestamp}] Client {client_id} ({addr}) đặt ghế {seat_num} trên chuyến {trip_id} thành công, mã vé: {tid}") 
+
             elif cmd == "get_booking_info":
                 trip_id = req.get("trip_id")
                 seat_num = req.get("seat_num")
                 if trip_id in trips and str(seat_num) in trips[trip_id]['booked_seats']:
                     send_json(client_sock, {"status": "success", "info": trips[trip_id]['booked_seats'][str(seat_num)]})
                 else:
-                    send_json(client_sock, {"status": "error", "message": "Không tìm thấy thông tin vé"})                
+                    send_json(client_sock, {"status": "error", "message": "Không tìm thấy thông tin vé"}) 
+
+
+            elif cmd == "cancel_booking":
+                trip_id = req.get("trip_id")
+                seat_num = req.get("seat_num")
+                ticket_id = req.get("ticket_id")
+                timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                print(f"[{timestamp}] Client {client_id} ({addr}) hủy ghế {seat_num} trên chuyến {trip_id}, mã vé: {ticket_id}")
+                if trip_id in trips and str(seat_num) in trips[trip_id]['booked_seats']:
+                    booking = trips[trip_id]['booked_seats'][str(seat_num)]
+                    if booking['ticket_id'] != ticket_id:
+                        send_json(client_sock, {"status": "error", "message": "Mã vé sai"})
+                        print(f"[{timestamp}] Client {client_id} ({addr}) lỗi: Mã vé sai cho ghế {seat_num} trên chuyến {trip_id}")
+                    elif booking['owner_id'] != client_id:
+                        send_json(client_sock, {"status": "error", "message": "Bạn không thể hủy vé của người khác"})
+                        print(f"[{timestamp}] Client {client_id} ({addr}) lỗi: Không thể hủy vé của người khác cho ghế {seat_num} trên chuyến {trip_id}")
+                    else:
+                        del trips[trip_id]['booked_seats'][str(seat_num)]
+                        send_json(client_sock, {"status": "success", "message": "Hủy vé thành công"})
+                        print(f"[{timestamp}] Client {client_id} ({addr}) hủy ghế {seat_num} trên chuyến {trip_id} thành công")
+                else:
+                    send_json(client_sock, {"status": "error", "message": "Không tìm thấy vé"})
+                    print(f"[{timestamp}] Client {client_id} ({addr}) lỗi: Không tìm thấy vé cho ghế {seat_num} trên chuyến {trip_id}")
+
+            else:
+                send_json(client_sock, {"status": "error", "message": "Lệnh không hợp lệ"})
+                print(f"[{timestamp}] Client {client_id} ({addr}) lỗi: Lệnh không hợp lệ - {cmd}")
+
+                     
     except Exception as e:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [!] Lỗi với client {client_id} ({addr}): {e}")
