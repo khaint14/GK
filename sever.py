@@ -15,6 +15,13 @@ trips = {
     'HCM -> DAK LAK': {'total_seats': 20, 'booked_seats': {}},
 }
 # =====================
+# Helper gửi/nhận JSON
+# =====================
+def send_json(sock, obj):
+    data = json.dumps(obj) + "\n"
+    sock.sendall(data.encode("utf-8"))
+
+# =====================
 # Validate
 # =====================
 def is_valid_phone(phone):
