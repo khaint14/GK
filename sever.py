@@ -55,6 +55,20 @@ def handle_client(client_sock, addr):
                     break
                 else:
                     continue
+
+            cmd = req.get("command")
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            #get id
+            if cmd == "get_client_id":
+                send_json(client_sock, {"status": "success", "client_id": client_id})
+
+            elif cmd == "view_trips":
+                available = {
+                    t: info['total_seats'] - len(info['booked_seats'])
+                    for t, info in trips.items()
+                }
+                send_json(client_sock, {"status": "success", "trips": available})
+                
     except Exception as e:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [!] Lỗi với client {client_id} ({addr}): {e}")
