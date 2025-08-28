@@ -59,51 +59,52 @@ class TicketBookingClient:
         if self.selected_trip:
             self.display_seats()
 
-def setup_ui(self):
-    top = ttk.Frame(self.root, padding=12)
-    top.pack(fill='x')
-    ttk.Label(top, text="HỆ THỐNG ĐẶT VÉ XE", font=("Helvetica", 18, "bold")).pack(side='left')
-    ttk.Button(top, text="Cập nhật", command=self.refresh_all).pack(side='right', padx=4)
-    ttk.Button(top, text="Thoát", command=self.quit).pack(side='right', padx=4)
 
-    main = ttk.Frame(self.root, padding=12)
-    main.pack(fill='both', expand=True)
+    def setup_ui(self):
+        top = ttk.Frame(self.root, padding=12)
+        top.pack(fill='x')
+        ttk.Label(top, text="HỆ THỐNG ĐẶT VÉ XE", font=("Helvetica", 18, "bold")).pack(side='left')
+        ttk.Button(top, text="Cập nhật", command=self.refresh_all).pack(side='right', padx=4)
+        ttk.Button(top, text="Thoát", command=self.quit).pack(side='right', padx=4)
 
-    # Left: trips
-    left = ttk.Frame(main)
-    left.pack(side='left', fill='y', padx=(0,12))
+        main = ttk.Frame(self.root, padding=12)
+        main.pack(fill='both', expand=True)
 
-    ttk.Label(left, text="Danh sách chuyến", font=("Helvetica", 12, "bold")).pack(pady=(0,6))
-    self.trip_tree = ttk.Treeview(left, columns=("trip","free"), show='headings', height=12)
-    self.trip_tree.heading('trip', text='Chuyến')
-    self.trip_tree.heading('free', text='Ghế trống')
-    self.trip_tree.column('trip', width=260)
-    self.trip_tree.column('free', width=80, anchor='center')
-    self.trip_tree.pack(fill='y')
-    self.trip_tree.bind('<<TreeviewSelect>>', self.on_trip_select)
+        # Left: trips
+        left = ttk.Frame(main)
+        left.pack(side='left', fill='y', padx=(0,12))
 
-    # Remove "Add trip" and "Delete trip" buttons → user only view/select
-    ttk.Button(left, text="Xem vé", command=self.view_all_bookings).pack(pady=8)
+        ttk.Label(left, text="Danh sách chuyến", font=("Helvetica", 12, "bold")).pack(pady=(0,6))
+        self.trip_tree = ttk.Treeview(left, columns=("trip","free"), show='headings', height=12)
+        self.trip_tree.heading('trip', text='Chuyến')
+        self.trip_tree.heading('free', text='Ghế trống')
+        self.trip_tree.column('trip', width=260)
+        self.trip_tree.column('free', width=80, anchor='center')
+        self.trip_tree.pack(fill='y')
+        self.trip_tree.bind('<<TreeviewSelect>>', self.on_trip_select)
 
-    # Right: seat map
-    right = ttk.Frame(main)
-    right.pack(side='left', fill='both', expand=True)
+        # Remove "Add trip" and "Delete trip" buttons → user only view/select
+        ttk.Button(left, text="Xem vé", command=self.view_all_bookings).pack(pady=8)
 
-    self.seat_label = ttk.Label(right, text="Sơ đồ ghế (chọn chuyến)", font=("Helvetica", 14, "bold"))
-    self.seat_label.pack(pady=6)
+        # Right: seat map
+        right = ttk.Frame(main)
+        right.pack(side='left', fill='both', expand=True)
 
-    canvas_frame = ttk.Frame(right)
-    canvas_frame.pack(fill='both', expand=True)
-    self.canvas = tk.Canvas(canvas_frame, bg='white', height=420)
-    self.canvas.pack(side='left', fill='both', expand=True, padx=(0,6))
-    self.info_area = tk.Text(canvas_frame, width=36, state='disabled', wrap='word')
-    self.info_area.pack(side='right', fill='y')
+        self.seat_label = ttk.Label(right, text="Sơ đồ ghế (chọn chuyến)", font=("Helvetica", 14, "bold"))
+        self.seat_label.pack(pady=6)
 
-    status = ttk.Frame(right, padding=6)
-    status.pack(fill='x', pady=6)
-    ttk.Label(status, text="■ Ghế trống", foreground='green').pack(side='left', padx=6)
-    ttk.Label(status, text="■ Ghế đã đặt", foreground='red').pack(side='left', padx=6)
-    
+        canvas_frame = ttk.Frame(right)
+        canvas_frame.pack(fill='both', expand=True)
+        self.canvas = tk.Canvas(canvas_frame, bg='white', height=420)
+        self.canvas.pack(side='left', fill='both', expand=True, padx=(0,6))
+        self.info_area = tk.Text(canvas_frame, width=36, state='disabled', wrap='word')
+        self.info_area.pack(side='right', fill='y')
+
+        status = ttk.Frame(right, padding=6)
+        status.pack(fill='x', pady=6)
+        ttk.Label(status, text="■ Ghế trống", foreground='green').pack(side='left', padx=6)
+        ttk.Label(status, text="■ Ghế đã đặt", foreground='red').pack(side='left', padx=6)
+
     def send_request(self, request):
         try:
             send_json(self.sock, request)
@@ -131,6 +132,7 @@ def setup_ui(self):
         self.selected_trip = self.trip_tree.item(sel[0])['values'][0]
         self.seat_label.config(text=f"Sơ đồ ghế cho chuyến: {self.selected_trip}")
         self.display_seats()
+
     def display_seats(self):
         if not self.selected_trip:
             messagebox.showwarning("Cảnh báo", "Chọn chuyến trước nhé.")
@@ -187,7 +189,7 @@ def setup_ui(self):
                     self.canvas.tag_bind(rect, '<Enter>',
                                      lambda e, n=num: self.show_booking_info(booked[str(n)]))
                     self.canvas.tag_bind(rect, '<Leave>', lambda e: self.clear_info_area())
-                    
+
     def open_booking_dialog(self, seat_num):
         dialog = tk.Toplevel(self.root)
         dialog.title("Đặt vé")
@@ -229,6 +231,7 @@ def setup_ui(self):
             messagebox.showwarning("Không thể hủy", "Bạn không thể hủy vé của người khác.")
             return
         self.open_cancel_dialog(seat_num)
+
     def show_booking_info(self, info):
         txt = f"Tên: {info['user_info']['name']}\nSĐT: {info['user_info']['phone']}\nThời gian: {info['timestamp']}\nMã vé: {info['ticket_id']}\n"
         self.info_area.config(state='normal'); self.info_area.delete('1.0','end'); self.info_area.insert('end', txt); self.info_area.config(state='disabled')
@@ -254,7 +257,7 @@ def setup_ui(self):
                 messagebox.showerror("Lỗi", resp2.get('message'), parent=dialog)
         ttk.Button(dialog, text="Xác nhận hủy", command=do_cancel).pack(pady=6)
         ttk.Button(dialog, text="Hủy", command=dialog.destroy).pack()
-        
+
     def view_all_bookings(self):
         if not self.selected_trip:
             messagebox.showwarning("Cảnh báo", "Chọn chuyến đã.")
