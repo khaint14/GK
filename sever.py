@@ -35,8 +35,10 @@ def recv_json(sock, buffer):
 # =====================
 def is_valid_phone(phone):
     return bool(re.match(r'^\d{10}$', phone))
+
 def is_valid_name(name):
     return bool(re.match(r'^[A-Za-z\s]{2,}$', name))
+
 def generate_ticket_id():
     return str(uuid.uuid4())[:8]
 
@@ -68,6 +70,7 @@ def handle_client(client_sock, addr):
                     for t, info in trips.items()
                 }
                 send_json(client_sock, {"status": "success", "trips": available})
+
             elif cmd == "get_seats":
                 trip_id = req.get("trip_id")
                 only_mine = req.get("only_mine", False)
@@ -153,6 +156,7 @@ def handle_client(client_sock, addr):
     except Exception as e:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"[{timestamp}] [!] Lỗi với client {client_id} ({addr}): {e}")
+
     finally:
         client_sock.close()
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -166,7 +170,6 @@ def start_server(host='localhost', port=5555):
     server_sock.listen(5)
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Server chạy tại {host}:{port}")
 
-
     # kiem tra ngoai le - Kim Ngan
     try:
         while True:
@@ -174,8 +177,10 @@ def start_server(host='localhost', port=5555):
             # Start a new thread to handle the client
             client_thread = threading.Thread(target=handle_client, args=(client_sock, addr))
             client_thread.start()
+
     except KeyboardInterrupt:
         print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Tắt server.")
+        
     finally:
         server_sock.close()
 
